@@ -8,15 +8,19 @@ import org.apache.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.kafka.KafkaSpout;
 import org.apache.storm.kafka.StringScheme;
 import org.apache.storm.topology.TopologyBuilder;
+import org.apache.storm.Config;
+import org.apache.storm.StormSubmitter;
 
 import java.util.UUID;
+
+import proj.storm.kafka.spout.KafkaExtractor;
 
 // Define topology
 public class Topology {
   // Instance Value here
 
   // Method here
-  public static void main( String[] args ) throws Exception {
+  public static void main( String[] args ) {
     /* ********************************************************************** */
     /* Kafka configuration variable (This needs to be in configuration file!) */
     /* ********************************************************************** */
@@ -42,10 +46,49 @@ public class Topology {
     KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
 
     /* ****************************************************************** */
-    /* Set up the whole topology                                          */
+    /* Set up storm configuration
     /* ****************************************************************** */
+    /*
+       Based on common config parameters
+       http://storm.apache.org/releases/1.2.1/Running-topologies-on-a-production-cluster.html
+    */
+
+    Config conf = new Config();
+
+    // Config.TOPOLOGY_WORKERS
+    conf.setNumWorkers(1);
+
+    // Config.TOPOLOGY_ACKER_EXECUTORS
+    conf.setNumAckers(1);
+
+    // Config.TOPOLOGY_MAX_SPOUT_PENDING
+    conf.setMaxSpoutPending(5000);
+
+    // Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS
+    // Default
+    conf.setMessageTimeoutSecs(30);
+
+    // conf.registerSerialization();
+
+    StormSubmitter.submitTopology("mytopology", conf, topology);
+
+    /* ****************************************************************** */
+    /* Set up topology                                                    */
+    /* ****************************************************************** */
+    /* Add Spout                                                          */
     TopologyBuilder builder = new TopologyBuilder();
     builder.setSpout( "kafka-spout" , kafkaSpout );
+
+    /* Add Bolt                                                           */
+    builder
+      .setBolt("kafka-extractor", new KafkaExtractor())
+      .shuffleGrouping( "kafka-spout" );
+
+    /* Finalize the topology                                              */
+    StormTopology topology = builder.createTopology();
+
+    /* Submit to storm                                                    */
+    StormSubmitter.submitTopology("mytopology", conf, topology);
   }
 }
 
