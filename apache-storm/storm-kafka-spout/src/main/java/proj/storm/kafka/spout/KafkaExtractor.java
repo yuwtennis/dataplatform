@@ -8,6 +8,8 @@ import org.apache.storm.task.TopologyContext;
 
 import org.apache.storm.tuple.Tuple;
 
+import java.util.List;
+
 /*
  * Simple Bolt outputs result to standard output
  */
@@ -21,10 +23,23 @@ public class KafkaExtractor extends BaseBasicBolt {
   @Override
   public void execute( Tuple tuple,
                        BasicOutputCollector outputCollector) {
-    /*  Extracts event from tuple. */
-    String message = tuple.getStringByField("kafka-spout");
+    String message = tuple.getStringByField( "str" );
 
-    /* Just log to standard output */
-    System.out.format("Kafka Message : %s", message);
+    System.out.format( "### Processed message ### %s\n" , message );
   }
+
+  private void dumpTuple( Tuple tuple ) {
+    //  Extracts event from tuple.
+    List tupleFields = tuple.getFields( ).toList();
+    List tupleValues = tuple.getValues( );
+
+    for( int i = 0 ; i < tupleFields.size() ; i++ ) {
+      System.out.format( "### Fields inside tuple ### idx : %d , val : %s\n", i, tupleFields.get(i).toString() );
+    }
+
+    for( int i = 0 ; i < tupleValues.size() ; i++ ) {
+      System.out.format( "### Values inside tuple ### idx : %d , val : %s\n", i, tupleValues.get(i).toString() );
+    }
+  }
+
 }

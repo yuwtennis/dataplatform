@@ -9,7 +9,13 @@ import org.apache.storm.kafka.KafkaSpout;
 import org.apache.storm.kafka.StringScheme;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.Config;
+import org.apache.storm.generated.StormTopology;
 import org.apache.storm.StormSubmitter;
+import org.apache.storm.generated.*;
+import org.apache.storm.utils.Utils;
+import java.lang.InterruptedException;
+import org.apache.storm.LocalCluster;
+
 
 import java.util.UUID;
 
@@ -18,29 +24,41 @@ import proj.storm.kafka.spout.KafkaExtractor;
 // Define topology
 public class Topology {
   // Instance Value here
-
-  // Method here
-  public static void main( String[] args ) {
     /* ********************************************************************** */
     /* Kafka configuration variable (This needs to be in configuration file!) */
     /* ********************************************************************** */
     // Kafka consumer client depends on Zookeeper when finding kafka nodes.
     // Zookeeper Host List
-    String zkConnString = "localhost:2181";
-    String clusterName  = "cluster";
-    String topicName    = "myfirsttopic";
+    private static String zkConnString       = "localhost:2181";
+    private static String brokerZkPath       = "/kafka-cluster-1/brokers";
+    private static String zkRoot             = "/kafka-cluster-1/brokers/topics";
+    private static String topicName          = "myfirsttopic";
+
+    /* ****************************************************************** */
+    /* Topology configuration variable                                    */
+    /* ****************************************************************** */
+    // The number of tasks that should be assigned to execute this bolt
+    private static int boltParalismHint      = 1;
+    private static int spoutParalismHint     = 1;
+    private static String  topologyName      = "mytopology";
+
+  // Method here
+  public static void main( String[] args ) {
 
     /* ****************************************************************** */
     /* Build kafka consumer spout                                         */
     /* ****************************************************************** */
     // Build zookeeper instance
-    BrokerHosts hosts = new ZkHosts(zkConnString);
+    BrokerHosts hosts = new ZkHosts( zkConnString, brokerZkPath );
 
     // Build configuration instance for Spout
-    SpoutConfig spoutConfig = new SpoutConfig(hosts, topicName, "/" + topicName, UUID.randomUUID().toString());
+    SpoutConfig spoutConfig = new SpoutConfig( hosts, topicName, zkRoot + "/" + topicName , UUID.randomUUID().toString() );
 
     // Build Multischeme instance
     spoutConfig.scheme = new SchemeAsMultiScheme( new StringScheme() );
+
+    // Custom spout configuration
+    spoutConfig.ignoreZkOffsets = true;
 
     // Build Kafka spout
     KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
@@ -70,25 +88,69 @@ public class Topology {
 
     // conf.registerSerialization();
 
-    StormSubmitter.submitTopology("mytopology", conf, topology);
-
     /* ****************************************************************** */
     /* Set up topology                                                    */
     /* ****************************************************************** */
     /* Add Spout                                                          */
     TopologyBuilder builder = new TopologyBuilder();
-    builder.setSpout( "kafka-spout" , kafkaSpout );
+    builder.setSpout( "kafka-spout" , kafkaSpout, spoutParalismHint );
 
-    /* Add Bolt                                                           */
+    // Add Bolt
     builder
-      .setBolt("kafka-extractor", new KafkaExtractor())
+      .setBolt("kafka-extractor", new KafkaExtractor(), boltParalismHint)
       .shuffleGrouping( "kafka-spout" );
 
-    /* Finalize the topology                                              */
+    // Finalize the topology
     StormTopology topology = builder.createTopology();
 
-    /* Submit to storm                                                    */
-    StormSubmitter.submitTopology("mytopology", conf, topology);
+    // Exception message will go to standard output
+    System.out.println("Cluster mode : " + args[0]);
+
+    if ( args[0].equals( "local" ) ) {
+      try {
+        submitLocalCluster( conf, topology );
+      } catch ( InterruptedException e ) {
+        System.out.println("InterruptedException: " + e );
+      }
+
+    } else if ( args[0].equals( "prod" ) ) {
+      submitProductionCluster( conf, topology );
+
+    } else {
+      System.out.println("Wrong option!");
+      System.exit(0);
+    }
+  }
+
+  private static void submitLocalCluster ( Config conf, StormTopology topology )
+    throws InterruptedException {
+    // Submit topology to local cluster
+    // Set Debug Option
+    conf.setDebug(true);
+
+    // Create and execute object for local cluster
+    LocalCluster cluster = new LocalCluster();
+
+    cluster.submitTopology( topologyName, conf, topology );
+
+    Utils.sleep(60000);
+
+    // Shutdown local cluster gracefully
+    cluster.shutdown();
+  }
+
+  private static void submitProductionCluster( Config conf, StormTopology topology ) {
+    try {
+      // Submit topology to producton cluster
+      StormSubmitter.submitTopology( topologyName, conf, topology );
+
+    } catch ( AlreadyAliveException e ) {
+      System.out.println( "AlreadyAliveException : " + e);
+    } catch ( InvalidTopologyException e ) {
+      System.out.println( "InvalidTopologyException : " + e);
+    } catch ( AuthorizationException e ) {
+      System.out.println( "AuthorizatioinException : " + e);
+    }
   }
 }
 
