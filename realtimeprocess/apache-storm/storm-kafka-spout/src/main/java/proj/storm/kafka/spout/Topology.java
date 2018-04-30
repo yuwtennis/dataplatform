@@ -4,18 +4,18 @@ package proj.storm.kafka.spout;
 import org.apache.storm.kafka.BrokerHosts;
 import org.apache.storm.kafka.ZkHosts;
 import org.apache.storm.kafka.SpoutConfig;
-import org.apache.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.kafka.KafkaSpout;
 import org.apache.storm.kafka.StringScheme;
+import org.apache.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.Config;
 import org.apache.storm.generated.StormTopology;
 import org.apache.storm.StormSubmitter;
 import org.apache.storm.generated.*;
 import org.apache.storm.utils.Utils;
+import org.apache.storm.tuple.Fields;
 import java.lang.InterruptedException;
 import org.apache.storm.LocalCluster;
-
 
 import java.util.UUID;
 
@@ -95,10 +95,15 @@ public class Topology {
     TopologyBuilder builder = new TopologyBuilder();
     builder.setSpout( "kafka-spout" , kafkaSpout, spoutParalismHint );
 
-    // Add Bolt
+    // Add Bolt (Kafka Extractor)
     builder
       .setBolt("kafka-extractor", new KafkaExtractor(), boltParalismHint)
       .shuffleGrouping( "kafka-spout" );
+
+    // Add Bolt (Elasticsearch Indexer)
+    builder
+      .setBolt("es-indexer", new ElasticsearchIndexer(), boltParalismHint)
+      .fieldsGrouping("kafka-extractor", new Fields("id", "index", "type", "source"));
 
     // Finalize the topology
     StormTopology topology = builder.createTopology();
