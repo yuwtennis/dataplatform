@@ -20,7 +20,7 @@ I have used *es-hadoop* in this project.
 
 ![img](https://github.com/yuwtennis/dataplatform/blob/master/realtimeprocess/apache-storm/storm-kafka-spout-es-hadoop/img/basic-architecture.png)
 
-For data modeling, I have mapped the index name same name as topic name in apache kafka. 
+For data modeling, I have mapped the index name same name as topic name in apache kafka. *system.properties* will let you change the *topic name* and *index name*.
 
 ![img](https://github.com/yuwtennis/dataplatform/blob/master/realtimeprocess/apache-storm/storm-kafka-spout-es-hadoop/img/simple-datamodeling.png)
 
