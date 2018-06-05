@@ -29,7 +29,7 @@ public class Topology {
     /* ********************************************************************** */
     // Kafka consumer client depends on Zookeeper when finding kafka nodes.
     // Zookeeper Host List
-    private static String zkConnString       = "localhost:2181";
+    private static String zkConnString       = "192.168.11.11:2181";
     private static String brokerZkPath       = "/kafka-cluster-1/brokers";
     private static String zkRoot             = "/kafka-cluster-1/brokers/topics";
     private static String topicName          = "myfirsttopic";
