@@ -15,13 +15,10 @@ class devEs:
         docs = [ dict(zip(CSV_COLUMNS.split(";"), l.split(";"))) for l in sar_contents ]
         bulk(es, gendata(docs))
 
-    def setIndex(self,es, es_index, es_mapping):
-        es.indices.create(index=es_index, body=es_mapping)
-
     ##################################################################
     # Custom index setting
     ##################################################################
-    def prepareSarQMapping(self):
+    def prepareSarQueueMapping(self):
         index = {
             "settings": self.defaultIndexSettings(),
             "mappings": {
@@ -42,7 +39,7 @@ class devEs:
         }
         return index
 
-    def prepareSarDMapping(self):
+    def prepareSarDeviceMapping(self):
         index = {
             "settings": self.defaultIndexSettings(),
             "mappings": {
@@ -60,6 +57,50 @@ class devEs:
                         "await":          { "type": "float" },
                         "svctm":          { "type": "float" },
                         "percent-util":   { "type": "float" }
+                    }
+                }
+            }
+        }
+        return index
+
+    def prepareSarNetworkMapping(self):
+        index = {
+            "settings": self.defaultIndexSettings(),
+            "mappings": {
+                "doc": {
+                    "properties": {
+                        "hostname":       { "type": "keyword" },
+                        "interval":       { "type": "integer" },
+                        "timestamp":      { "type": "date", "format": "yyyy-MM-dd HH:mm:ss" },
+                        "iface":          { "type": "keyword" },
+                        "rxpck_per_sec":  { "type": "float" },
+                        "txpck_per_sec":  { "type": "float" },
+                        "rxkb_per_sec":   { "type": "float" },
+                        "txkB_per_sec":   { "type": "float" },
+                        "rxcmp_per_sec":  { "type": "float" },
+                        "txcmp_per_sec":  { "type": "float" },
+                        "rxmcst_per_sec": { "type": "float" },
+                    }
+                }
+            }
+        }
+        return index
+
+    def prepareSarBlocksMapping(self):
+        index = {
+            "settings": self.defaultIndexSettings(),
+            "mappings": {
+                "doc": {
+                    "properties": {
+                        "hostname":      { "type": "keyword" },
+                        "interval":      { "type": "integer" },
+                        "timestamp":     { "type": "date", "format": "yyyy-MM-dd HH:mm:ss" },
+                        "dev":           { "type": "keyword" },
+                        "tps":           { "type": "float" },
+                        "rtps":          { "type": "float" },
+                        "wtps":          { "type": "float" },
+                        "bread_per_sec": { "type": "float" },
+                        "bwrtn_per_sec": { "type": "float" }
                     }
                 }
             }

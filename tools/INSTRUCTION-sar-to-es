@@ -1,43 +1,22 @@
 How to load sar data to elasticsearch
 
-1. Export Sar data
+usage: sar-to-es.py [-h] [-q] [-d] [-n] [-b] [-H [HOST]]
+                    [--directory DIRECTORY] [--sa_file SA_FILE]
 
-ex. 
-sadf -d -t /home/ywatanabe/customer/Bridgestone/sosreport-BSU00387-20181022133250/var/log/sa/sa20 -- -d > sar_-d_sa20.txt
+This program will parse lines from sadf command and create elasticsearch
+index.
 
-2. Prepare script (parse-sar.py)
+optional arguments:
+  -h, --help            show this help message and exit
+  -q, --queue           Equivalent to sar -q option
+  -d, --device          Equivalent to sar -d option
+  -n, --network         Equivalent to sar -n DEV option
+  -b, --blocks          Equivalent to sar -b option
+  -H [HOST], --Host [HOST]
+                        Elasticsearch host
+  --directory DIRECTORY
+                        Directory where sa object file exists
+  --sa_file SA_FILE     Sar object file name
 
-Customize below variables then comment in
-
-#CSV_COLUMNS="hostname;interval;timestamp;runq-sz;plist-sz;ldavg-1;ldavg-5;ldavg-15;blocked"
-#ES_INDEX="sar-q"
-#o.setIndex( es, ES_INDEX, o.prepareSarQMapping() )   <- THIS IS REQUIRED ONLY WHEN CREATING INDEX
-
-3. Prepare mapping (devEs.py)
-
-Define your own mapping. def name must be same with 3 rd parameter of setIndex
-
-ex.
-    def prepareSarQMapping(self):
-        index = {
-            "settings": self.defaultIndexSettings(),
-            "mappings": {
-                "doc": {
-                    "properties": {
-                        "hostname":  { "type": "keyword" },
-                        "interval":  { "type": "integer" },
-                        "timestamp": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss" },
-                        "runq-sz":   { "type": "integer" },
-                        "plist-sz":  { "type": "integer" },
-                        "ldavg-1":   { "type": "float" },
-                        "ldavg-5":   { "type": "float" },
-                        "ldavg-15":  { "type": "float" },
-                        "blocked":   { "type": "integer" }
-                    }
-                }
-            }
-        }
-        return index
-
-4. load data to elasticsearch
-./parse-sar.py /home/ywatanabe/scripts/sars/sar_-d_sa20.txt
+1. load data to elasticsearch
+./sar-to-es.py -q --directory /var/log/sa --sa_file sa08
