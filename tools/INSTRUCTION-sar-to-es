@@ -1,4 +1,6 @@
 How to load sar data to elasticsearch
+Script will automatically parse output from sadf and load to elasticsearch.
+Index name will be sar-[option]-YYYY.MM.DD. Date will be parsed from lines from sadf output.
 
 usage: sar-to-es.py [-h] [-q] [-d] [-n] [-b] [-H [HOST]]
                     [--directory DIRECTORY] [--sa_file SA_FILE]
