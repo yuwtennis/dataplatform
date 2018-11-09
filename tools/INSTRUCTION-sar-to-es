@@ -1,4 +1,4 @@
-# How to load sar data to elasticsearch
+# How to load sar data (saX) to elasticsearch
 
 ## Notes
 1. devEs.py needs to exist in the same directory
@@ -6,7 +6,7 @@
 
 https://elasticsearch-py.readthedocs.io/en/master/
 
-3. Program was tested on *Red Hat Enterprise Linux 7.4*
+3. Program was tested on *Red Hat Enterprise Linux 7.4* 
 
 ## Usage
 Script will automatically parse output from sadf and load to elasticsearch.
