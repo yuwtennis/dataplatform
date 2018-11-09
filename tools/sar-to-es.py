@@ -104,13 +104,12 @@ def main():
     logging.info("Preparing elasticsearch index.")
 
     # Parse date from first line of the sadf result
+    host = (lines[0].split(';'))[0].lower()
     date = (lines[0].split(';'))[2].split(' ')[0].replace('-', '.')
-    esIndex="{0}-{1}".format(ES_INDEX_PREFIX, date)
+    esIndex="{0}-{1}-{2}".format(ES_INDEX_PREFIX, host, date)
 
-    if es.indices.exists(esIndex):
-        es.indices.delete(esIndex)
-
-    es.indices.create(esIndex,body=MAPPING)
+    if not es.indices.exists(esIndex):
+        es.indices.create(esIndex,body=MAPPING)
 
     # Load Data to elasticsearch
     o.sendBulk( es, esIndex, CSV_COLUMNS , lines)
