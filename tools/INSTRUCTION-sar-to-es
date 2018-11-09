@@ -1,6 +1,16 @@
-How to load sar data to elasticsearch
+# How to load sar data to elasticsearch
+
+## Notes
+1. devEs.py needs to exist in the same directory
+2. elasticsearch python client needs to be installed. Tested with v6.3.0 .
+
+https://elasticsearch-py.readthedocs.io/en/master/
+
+3. Program was tested on *Red Hat Enterprise Linux 7.4*
+
+## Usage
 Script will automatically parse output from sadf and load to elasticsearch.
-Index name will be sar-[option]-YYYY.MM.DD. Date will be parsed from lines from sadf output.
+Index name will be sar-[option]-[hostname in saxx file]-YYYY.MM.DD. Date will be parsed from lines from sadf output.
 
 usage: sar-to-es.py [-h] [-q] [-d] [-n] [-b] [-H [HOST]]
                     [--directory DIRECTORY] [--sa_file SA_FILE]
