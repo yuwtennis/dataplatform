@@ -107,6 +107,36 @@ class devEs:
         }
         return index
 
+    def prepareSarCPUUtilMapping(self):
+        index = {
+            "settings": self.defaultIndexSettings(),
+            "mappings": {
+                "doc": {
+                    "properties": {
+                        "hostname":       { "type": "keyword" },
+                        "interval":       { "type": "integer" },
+                        "timestamp":      { "type": "date", "format": "yyyy-MM-dd HH:mm:ss z" },
+                        "cpu":            { "type": "keyword" },
+                        "percent_user":   { "type": "float" },
+                        "percent_nice":   { "type": "float" },
+                        "percent_system": { "type": "float" },
+                        "percent_iowait": { "type": "float" },
+                        "percent_steal":  { "type": "float" },
+                        "percent_idle":   { "type": "float" }
+                    }
+                }
+            }
+        }
+        return index
+
+    def defaultIndexSettings(self):
+        settings = {
+            "number_of_shards": 1,
+            "number_of_replicas": 0
+        }
+
+        return settings
+
     def defaultIndexSettings(self):
         settings = {
             "number_of_shards": 1,

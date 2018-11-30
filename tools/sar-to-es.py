@@ -4,13 +4,14 @@ def parseArgs():
     import argparse
 
     parser = argparse.ArgumentParser( description='This program will parse lines from sadf command and create elasticsearch index.')
-    parser.add_argument('-q', '--queue',   help='Equivalent to sar -q option', action='store_true')
-    parser.add_argument('-d', '--device',  help='Equivalent to sar -d option', action='store_true')
-    parser.add_argument('-n', '--network', help='Equivalent to sar -n DEV option', action='store_true')
-    parser.add_argument('-b', '--blocks',  help='Equivalent to sar -b option', action='store_true')
-    parser.add_argument('-H', '--Host',    help='Elasticsearch host', nargs='?', default='localhost:9200')
-    parser.add_argument('--directory',     type=str, help='Directory where sa object file exists')
-    parser.add_argument('--sa_file',       type=str, help='Sar object file name')
+    parser.add_argument('-q', '--queue',     help='Equivalent to sar -q option', action='store_true')
+    parser.add_argument('-d', '--device',    help='Equivalent to sar -d option', action='store_true')
+    parser.add_argument('-n', '--network',   help='Equivalent to sar -n DEV option', action='store_true')
+    parser.add_argument('-b', '--blocks',    help='Equivalent to sar -b option', action='store_true')
+    parser.add_argument('-u', '--cpu_utils', help='Equivalent to sar -u option', action='store_true')
+    parser.add_argument('-H', '--Host',      help='Elasticsearch host', nargs='?', default='localhost:9200')
+    parser.add_argument('--directory',       type=str, help='Directory where sa object file exists')
+    parser.add_argument('--sa_file',         type=str, help='Sar object file name')
 
     return parser.parse_args()
 
@@ -19,7 +20,7 @@ def parseSADF(filePath, opt):
     from subprocess import Popen,PIPE
 
     # Execute sadf command
-    process = subprocess.Popen('/usr/bin/sadf -t -d {0} -- {1}'.format( filePath, opt),stdout=PIPE, shell=True)
+    process = subprocess.Popen('/usr/bin/sadf -d {0} -- {1}'.format( filePath, opt),stdout=PIPE, shell=True)
 
     # Store all lines into list.
     # sadf command returns first line as header.
@@ -66,6 +67,14 @@ def main():
         MAPPING=o.prepareSarQueueMapping()
         OPT="-q"
 
+    elif args.cpu_utils:
+        # hostname;interval;timestamp;CPU;%user;%nice;%system;%iowait;%steal;%idle
+        # sar -u
+        CSV_COLUMNS="hostname;interval;timestamp;cpu;percent_user;percent_nice;percent_system;percent_iowait;percent_steal;percent_idle"
+        ES_INDEX_PREFIX="sar-u"
+        MAPPING=o.prepareSarCPUUtilMapping()
+        OPT="-u"
+ 
     elif args.device:
         # hostname;interval;timestamp;DEV;tps;rd_sec/s;wr_sec/s;avgrq-sz;avgqu-sz;await;svctm;%util
         # sar -d
