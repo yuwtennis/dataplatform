@@ -26,7 +26,7 @@ class devEs:
                     "properties": {
                         "hostname":  { "type": "keyword" },
                         "interval":  { "type": "integer" },
-                        "timestamp": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss" },
+                        "timestamp": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss z" },
                         "runq-sz":   { "type": "integer" },
                         "plist-sz":  { "type": "integer" },
                         "ldavg-1":   { "type": "float" },
@@ -47,7 +47,7 @@ class devEs:
                     "properties": {
                         "hostname":       { "type": "keyword" },
                         "interval":       { "type": "integer" },
-                        "timestamp":      { "type": "date", "format": "yyyy-MM-dd HH:mm:ss" },
+                        "timestamp":      { "type": "date", "format": "yyyy-MM-dd HH:mm:ss z" },
                         "dev":            { "type": "keyword" },
                         "tps":            { "type": "float" },
                         "rd-sec-per-sec": { "type": "float" },
@@ -71,7 +71,7 @@ class devEs:
                     "properties": {
                         "hostname":       { "type": "keyword" },
                         "interval":       { "type": "integer" },
-                        "timestamp":      { "type": "date", "format": "yyyy-MM-dd HH:mm:ss" },
+                        "timestamp":      { "type": "date", "format": "yyyy-MM-dd HH:mm:ss z" },
                         "iface":          { "type": "keyword" },
                         "rxpck_per_sec":  { "type": "float" },
                         "txpck_per_sec":  { "type": "float" },
@@ -94,7 +94,7 @@ class devEs:
                     "properties": {
                         "hostname":      { "type": "keyword" },
                         "interval":      { "type": "integer" },
-                        "timestamp":     { "type": "date", "format": "yyyy-MM-dd HH:mm:ss" },
+                        "timestamp":     { "type": "date", "format": "yyyy-MM-dd HH:mm:ss z" },
                         "dev":           { "type": "keyword" },
                         "tps":           { "type": "float" },
                         "rtps":          { "type": "float" },
