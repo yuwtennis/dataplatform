@@ -35,9 +35,10 @@ print(japan_census.head())
 print(japan_census.describe())
 
 #
-# Plot bar chart
+# Plot bar chart and pdf export
 #
 japan_census.plot.bar(x='Prefecture name', y='Population')
+plt.savefig('bar.pdf')
 
 #
 # Series Operation
