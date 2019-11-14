@@ -30,7 +30,7 @@ japan_census = pd.DataFrame({
 #
 # Print 1
 #
-print('Table overview')
+print('Table overview for pandas.')
 print(japan_census.head())
 print(japan_census.describe())
 
